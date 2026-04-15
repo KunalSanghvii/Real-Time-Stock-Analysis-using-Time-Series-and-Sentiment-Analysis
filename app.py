@@ -768,8 +768,6 @@ def main():
             """)
             st.text('')
 
-            link = '[Project Report](https://github.com/sagarshah95/Financial-Real-Time-Stock-Analysis-using-Sentiment-Analysis-and-Time-Series-Forecasting-AWS/blob/main/README.md)'
-            st.markdown(link, unsafe_allow_html=True)
 
             st.title('AWS Data Architecture')
             st.image('./Images/Architecture Final AWS_FAST.jpg', width=900, use_container_width=True)
