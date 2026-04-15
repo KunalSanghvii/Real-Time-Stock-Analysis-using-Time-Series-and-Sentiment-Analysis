@@ -19,11 +19,11 @@ def install_requirements():
 
 
 def main():
- from ui_theme import render_home_landing
+     from ui_theme import render_home_landing
     # Dependencies should be installed once in the environment.
     # Re-installing on every Streamlit rerun is slow and fragile.
 
-    # import streamlit as st
+    import streamlit as st
 
     # from ui_theme import (
     #     APP_BRAND_FULL,
@@ -36,8 +36,6 @@ def main():
     #     render_metric_strip,
     #     page_title,
     # )
-
-    import streamlit as st
    
     from ui_theme import (
         APP_BRAND_FULL,
