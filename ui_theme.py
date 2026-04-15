@@ -451,11 +451,14 @@ APP_BRAND_TAGLINE = "Real-time market insights"
 
 NAV_DEFINITION = [
     ("Dashboard", "✨", "Dashboard"),
-    ("Company Basic Details", "📋", "Company"),
+    ("About the Project", "🏠", "Overview"),
+    ("Live News Sentiment", "📰", "News & sentiment"),
+    ("Company Basic Details", "📋", "Company profile"),
     ("Company Advanced Details", "📊", "Technicals"),
+    ("Google Trends with Forecast", "🔎", "Search trends"),
+    ("Twitter Trends", "𝕏", "Social trends"),
+    ("Meeting Summarization", "🎙️", "Meeting notes"),
     ("Stock Future Prediction", "🔮", "Forecast"),
-    ("Live News Sentiment", "📰", "News"),
-    ("About the Project", "🏠", "About"),
 ]
 
 
