@@ -19,6 +19,7 @@ def install_requirements():
 
 
 def main():
+ from ui_theme import render_home_landing
     # Dependencies should be installed once in the environment.
     # Re-installing on every Streamlit rerun is slow and fragile.
 
@@ -426,30 +427,34 @@ def main():
         st.write("Trends Over the Years and Months")
         st.pyplot(fig2)
 
-    elif page == "About the Project":
-        page_title(st, "Overview", "Data sources, architecture, and embedded dashboard")
-        col_main, col_rail = st.columns([2.2, 1])
-        with col_main:
-            st.title('Data Sources')
-            st.write("""
-            ### Our F.A.S.T application have 3 data sources for two different use cases:
-            #### 1. Web Scrapping to get Live News Data
-            #### 2. Twitter API to get Real time Tweets
-            #### 3. Google Trends API to get Real time Trends
-            """)
-            st.text('')
 
-            link = '[Project Report](https://github.com/sagarshah95/Financial-Real-Time-Stock-Analysis-using-Sentiment-Analysis-and-Time-Series-Forecasting-AWS/blob/main/README.md)'
-            st.markdown(link, unsafe_allow_html=True)
+       elif page == "About the Project":
+          render_home_landing(st)
 
-            st.title('AWS Data Architecture')
-            st.image('./Images/Architecture Final AWS_FAST.jpg', width=900, use_container_width=True)
+    # elif page == "About the Project":
+    #     page_title(st, "Overview", "Data sources, architecture, and embedded dashboard")
+    #     col_main, col_rail = st.columns([2.2, 1])
+    #     with col_main:
+    #         st.title('Data Sources')
+    #         st.write("""
+    #         ### Our F.A.S.T application have 3 data sources for two different use cases:
+    #         #### 1. Web Scrapping to get Live News Data
+    #         #### 2. Twitter API to get Real time Tweets
+    #         #### 3. Google Trends API to get Real time Trends
+    #         """)
+    #         st.text('')
 
-            st.title('Dashboard')
-            import streamlit.components.v1 as components
-            components.iframe("https://app.powerbi.com/reportEmbed?reportId=ae040e1c-7da3-4b0b-bd58-844abe577eea&autoAuth=true&ctid=a8eec281-aaa3-4dae-ac9b-9a398b9215e7", height=400, width=800)
-        with col_rail:
-            render_right_rail_placeholder(st)
+    #         link = '[Project Report](https://github.com/sagarshah95/Financial-Real-Time-Stock-Analysis-using-Sentiment-Analysis-and-Time-Series-Forecasting-AWS/blob/main/README.md)'
+    #         st.markdown(link, unsafe_allow_html=True)
+
+    #         st.title('AWS Data Architecture')
+    #         st.image('./Images/Architecture Final AWS_FAST.jpg', width=900, use_container_width=True)
+
+    #         st.title('Dashboard')
+    #         import streamlit.components.v1 as components
+    #         components.iframe("https://app.powerbi.com/reportEmbed?reportId=ae040e1c-7da3-4b0b-bd58-844abe577eea&autoAuth=true&ctid=a8eec281-aaa3-4dae-ac9b-9a398b9215e7", height=400, width=800)
+    #     with col_rail:
+    #         render_right_rail_placeholder(st)
 
     
     elif page == "Meeting Summarization":
