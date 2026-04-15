@@ -1,10 +1,12 @@
 import subprocess
 import sys
+
 # data_dir2 = '/root/Assignment4/Assignment-Trial/Assignment-Trial/fastAPIandStreamlit/awsdownload/'
 
 
 #companies = [f for f in listdir(data_dir) if isfile(join(data_dir, f))]
 #@st.cache
+
  
 def install_requirements():
     try:
@@ -20,8 +22,22 @@ def main():
     # Dependencies should be installed once in the environment.
     # Re-installing on every Streamlit rerun is slow and fragile.
 
-    import streamlit as st
+    # import streamlit as st
 
+    # from ui_theme import (
+    #     APP_BRAND_FULL,
+    #     init_theme_state,
+    #     inject_global_css,
+    #     render_top_bar,
+    #     render_sidebar_navigation,
+    #     render_right_rail_placeholder,
+    #     render_company_hero,
+    #     render_metric_strip,
+    #     page_title,
+    # )
+
+    import streamlit as st
+   
     from ui_theme import (
         APP_BRAND_FULL,
         init_theme_state,
