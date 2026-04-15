@@ -437,11 +437,8 @@
 
 
 """
-Modern Streamlit UI Theme Module
-Fintech-grade dashboard styling (dark-first, glass UI, SaaS layout)
-
-Logic in app.py remains unchanged.
-Only UI/UX layer is handled here.
+Modern Streamlit UI theme for FAST dashboard.
+Dark-first, premium finance dashboard styling.
 """
 
 from __future__ import annotations
@@ -449,359 +446,667 @@ from __future__ import annotations
 from datetime import datetime
 from html import escape
 
-# =========================
-# CONFIG
-# =========================
-
-APP_BRAND_FULL = "FinSense AI"
-APP_BRAND_TAGLINE = "Real-time Market Intelligence"
+APP_BRAND_FULL = "Financial Analysis and Stock Trading Analysis"
+APP_BRAND_TAGLINE = "Real-time market insights"
 
 NAV_DEFINITION = [
-    ("About the Project", "🏠", "Overview"),
-    ("Live News Sentiment", "📰", "News & sentiment"),
-    ("Company Basic Details", "📋", "Company profile"),
+    ("Dashboard", "✨", "Dashboard"),
+    ("Company Basic Details", "📋", "Company"),
     ("Company Advanced Details", "📊", "Technicals"),
-    ("Google Trends with Forecast", "🔎", "Search trends"),
-    ("Twitter Trends", "𝕏", "Social trends"),
-    ("Meeting Summarization", "🎙️", "Notes"),
+    ("Stock Future Prediction", "🔮", "Forecast"),
+    ("Live News Sentiment", "📰", "News"),
+    ("About the Project", "🏠", "About"),
 ]
 
 
-# =========================
-# STATE
-# =========================
+def _nav_display(internal: str, icon: str, short: str) -> str:
+    return f"{icon}  {short}"
+
 
 def init_theme_state(st) -> None:
     if "ui_theme_is_light" not in st.session_state:
         st.session_state["ui_theme_is_light"] = False
 
+    if "global_ticker_search" not in st.session_state:
+        st.session_state["global_ticker_search"] = "AAPL"
 
-# =========================
-# STYLES
-# =========================
 
 def inject_global_css(st) -> None:
     theme = "light" if st.session_state.get("ui_theme_is_light", False) else "dark"
 
     if theme == "light":
         bg = "#F5F7FB"
-        panel = "rgba(255,255,255,0.85)"
-        text = "#0F172A"
-        muted = "#64748B"
-        border = "rgba(15, 23, 42, 0.08)"
-        shadow = "0 10px 30px rgba(0,0,0,0.08)"
+        panel = "#FFFFFF"
+        panel_2 = "#F8FAFC"
+        text = "#101828"
+        muted = "#667085"
+        border = "rgba(16,24,40,0.08)"
+        shadow = "0 10px 30px rgba(16,24,40,0.08)"
+        accent = "#2563EB"
+        accent_2 = "#10B981"
     else:
-        bg = "#0B0F1A"
-        panel = "rgba(17, 24, 39, 0.75)"
-        text = "#E5E7EB"
-        muted = "#9CA3AF"
-        border = "rgba(255,255,255,0.08)"
-        shadow = "0 12px 35px rgba(0,0,0,0.45)"
+        bg = "#07111F"
+        panel = "#0F172A"
+        panel_2 = "#111C30"
+        text = "#E5EEF9"
+        muted = "#94A3B8"
+        border = "rgba(148,163,184,0.14)"
+        shadow = "0 18px 40px rgba(0,0,0,0.35)"
+        accent = "#38BDF8"
+        accent_2 = "#22C55E"
 
-    accent = "#4F8CFF"
+    pos = "#22C55E"
+    neg = "#EF4444"
+    warn = "#F59E0B"
 
-    st.markdown(f"""
-    <style>
+    st.markdown(
+        f"""
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-    html, body, .stApp {{
-        background: {bg} !important;
-        font-family: Inter, system-ui, sans-serif;
-        color: {text};
-    }}
+        html, body, .stApp, [data-testid="stAppViewContainer"] {{
+            font-family: 'Inter', system-ui, sans-serif !important;
+            color: {text};
+        }}
 
-    .block-container {{
-        padding: 1.2rem 2rem !important;
-        max-width: 1200px;
-    }}
+        .stApp {{
+            background:
+                radial-gradient(circle at top left, rgba(56,189,248,0.10), transparent 30%),
+                radial-gradient(circle at top right, rgba(34,197,94,0.08), transparent 28%),
+                linear-gradient(180deg, {bg} 0%, {bg} 100%) !important;
+        }}
 
-    /* =========================
-       TOP BAR
-    ========================= */
-    .topbar {{
-        background: {panel};
-        border: 1px solid {border};
-        border-radius: 16px;
-        padding: 14px 18px;
-        margin-bottom: 14px;
-        backdrop-filter: blur(14px);
-        box-shadow: {shadow};
-    }}
+        header[data-testid="stHeader"],
+        div[data-testid="stToolbar"],
+        div[data-testid="stDecoration"],
+        section.main > div,
+        [data-testid="stAppViewContainer"] > .main {{
+            background: transparent !important;
+            background-image: none !important;
+        }}
 
-    .topbar-title {{
-        font-size: 1.35rem;
-        font-weight: 800;
-        letter-spacing: -0.03em;
-    }}
+        [data-testid="collapsedControl"] {{
+            color: {text} !important;
+        }}
 
-    .topbar-sub {{
-        font-size: 0.85rem;
-        color: {muted};
-    }}
+        .block-container {{
+            max-width: 1320px;
+            padding-top: 1.2rem !important;
+            padding-bottom: 3rem !important;
+        }}
 
-    /* =========================
-       HERO SECTION
-    ========================= */
-    .hero {{
-        background: linear-gradient(135deg, {panel}, transparent);
-        border: 1px solid {border};
-        border-radius: 18px;
-        padding: 22px;
-        margin-bottom: 16px;
-        box-shadow: {shadow};
-    }}
+        h1, h2, h3 {{
+            letter-spacing: -0.03em;
+            font-weight: 700 !important;
+            color: {text} !important;
+        }}
 
-    .hero h1 {{
-        font-size: 1.9rem;
-        margin: 0;
-        letter-spacing: -0.03em;
-    }}
+        p, label, .stMarkdown, .stCaption {{
+            color: {muted};
+        }}
 
-    .hero p {{
-        color: {muted};
-        margin-top: 6px;
-        font-size: 0.95rem;
-    }}
+        section[data-testid="stSidebar"] > div {{
+            background: rgba(15, 23, 42, 0.78) !important;
+            backdrop-filter: blur(16px);
+            border-right: 1px solid {border} !important;
+        }}
 
-    /* =========================
-       FEATURE GRID
-    ========================= */
-    .grid {{
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-        margin-top: 14px;
-    }}
+        section[data-testid="stSidebar"] * {{
+            color: {text} !important;
+        }}
 
-    .card {{
-        background: {panel};
-        border: 1px solid {border};
-        border-radius: 14px;
-        padding: 14px;
-        transition: 0.2s ease;
-        box-shadow: {shadow};
-    }}
+        .sidebar-brand {{
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border: 1px solid {border};
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(56,189,248,0.10), rgba(34,197,94,0.08));
+            box-shadow: {shadow};
+        }}
 
-    .card:hover {{
-        transform: translateY(-3px);
-        border-color: {accent};
-    }}
+        .sb-logo {{
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, {accent}, {accent_2});
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.20);
+        }}
 
-    .card-title {{
-        font-weight: 700;
-        margin-bottom: 6px;
-    }}
+        .sb-title {{
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: {text};
+            line-height: 1.2;
+        }}
 
-    .card-text {{
-        font-size: 0.85rem;
-        color: {muted};
-    }}
+        .sb-sub {{
+            font-size: 0.75rem;
+            color: {muted};
+            margin-top: 0.2rem;
+        }}
 
-    /* =========================
-       METRICS
-    ========================= */
-    div[data-testid="stMetric"] {{
-        background: {panel};
-        border: 1px solid {border};
-        border-radius: 14px;
-        padding: 12px;
-        box-shadow: {shadow};
-    }}
+        .stRadio > div {{
+            gap: 0.45rem;
+        }}
 
-    /* =========================
-       BUTTONS
-    ========================= */
-    .stButton > button {{
-        border-radius: 10px;
-        border: 1px solid {border};
-        background: {panel};
-        transition: 0.2s ease;
-        font-weight: 600;
-    }}
+        .stRadio label {{
+            border-radius: 14px !important;
+            padding: 0.52rem 0.7rem !important;
+            border: 1px solid transparent !important;
+            background: transparent !important;
+            transition: all 0.18s ease;
+        }}
 
-    .stButton > button:hover {{
-        border-color: {accent};
-        transform: translateY(-1px);
-    }}
+        .stRadio label:hover {{
+            background: rgba(255,255,255,0.04) !important;
+            border-color: {border} !important;
+        }}
 
-    /* =========================
-       SIDEBAR
-    ========================= */
-    section[data-testid="stSidebar"] > div {{
-        background: {panel};
-        border-right: 1px solid {border};
-    }}
+        .stTextInput input,
+        .stNumberInput input,
+        .stDateInput input,
+        .stSelectbox div[data-baseweb="select"],
+        [data-baseweb="input"] {{
+            background: rgba(255,255,255,0.03) !important;
+            color: {text} !important;
+            border: 1px solid {border} !important;
+            border-radius: 14px !important;
+        }}
 
-    </style>
-    """, unsafe_allow_html=True)
+        .stButton > button {{
+            border-radius: 14px !important;
+            border: 1px solid {border} !important;
+            background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(34,197,94,0.10)) !important;
+            color: {text} !important;
+            font-weight: 700 !important;
+            padding: 0.55rem 1rem !important;
+            transition: all 0.18s ease;
+            box-shadow: {shadow};
+        }}
 
+        .stButton > button:hover {{
+            transform: translateY(-1px);
+            border-color: rgba(56,189,248,0.40) !important;
+        }}
 
-# =========================
-# TOP BAR
-# =========================
+        div[data-testid="stMetric"] {{
+            background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+            border: 1px solid {border};
+            border-radius: 18px;
+            padding: 1rem 1rem;
+            box-shadow: {shadow};
+        }}
 
-def render_top_bar(st) -> None:
-    now = datetime.now().strftime("%b %d · %H:%M")
+        div[data-testid="stMetricLabel"] {{
+            color: {muted} !important;
+        }}
 
-    st.markdown(f"""
-    <div class="topbar">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div>
-                <div class="topbar-title">{APP_BRAND_FULL}</div>
-                <div class="topbar-sub">{APP_BRAND_TAGLINE}</div>
-            </div>
-            <div class="topbar-sub">Live · {now}</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        div[data-testid="stMetricValue"] {{
+            color: {text} !important;
+            font-weight: 800 !important;
+        }}
 
-    st.text_input(
-        "",
-        placeholder="Search ticker (AAPL, TSLA, MSFT...)",
-        key="global_ticker_search",
-        label_visibility="collapsed",
+        .topbar-wrap {{
+            border: 1px solid {border};
+            border-radius: 22px;
+            padding: 1rem 1.2rem;
+            margin-bottom: 1.2rem;
+            background:
+                linear-gradient(135deg, rgba(56,189,248,0.10), rgba(34,197,94,0.08)),
+                rgba(15,23,42,0.72);
+            backdrop-filter: blur(16px);
+            box-shadow: {shadow};
+        }}
+
+        .topbar-inner {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }}
+
+        .topbar-brand {{
+            font-size: clamp(1.1rem, 2vw, 1.5rem);
+            font-weight: 800;
+            color: {text};
+            margin: 0;
+            letter-spacing: -0.03em;
+        }}
+
+        .topbar-brand span {{
+            color: {accent};
+        }}
+
+        .topbar-meta {{
+            font-size: 0.82rem;
+            color: {muted};
+            margin: 0;
+        }}
+
+        .hero-card {{
+            border: 1px solid {border};
+            border-radius: 24px;
+            padding: 1.4rem 1.45rem;
+            margin-bottom: 1.1rem;
+            background:
+                radial-gradient(circle at top right, rgba(56,189,248,0.10), transparent 32%),
+                linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            box-shadow: {shadow};
+        }}
+
+        .hero-kicker {{
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: {accent};
+            font-weight: 700;
+            margin-bottom: 0.55rem;
+        }}
+
+        .hero-title {{
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-weight: 800;
+            color: {text};
+            line-height: 1.05;
+            margin-bottom: 0.45rem;
+        }}
+
+        .hero-subtitle {{
+            font-size: 1rem;
+            color: {muted};
+            line-height: 1.6;
+            max-width: 780px;
+        }}
+
+        .page-card {{
+            background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+            border: 1px solid {border};
+            border-radius: 20px;
+            padding: 1rem 1.1rem;
+            margin-bottom: 1rem;
+            box-shadow: {shadow};
+        }}
+
+        .section-card {{
+            background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+            border: 1px solid {border};
+            border-radius: 20px;
+            padding: 1rem 1rem 0.6rem 1rem;
+            margin-bottom: 1rem;
+            box-shadow: {shadow};
+        }}
+
+        .section-title {{
+            font-size: 1rem;
+            font-weight: 700;
+            color: {text};
+            margin-bottom: 0.3rem;
+        }}
+
+        .section-subtitle {{
+            font-size: 0.86rem;
+            color: {muted};
+            margin-bottom: 0.9rem;
+        }}
+
+        .insight-card {{
+            border: 1px solid {border};
+            border-radius: 18px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            background: rgba(255,255,255,0.03);
+            box-shadow: {shadow};
+        }}
+
+        .insight-label {{
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: {muted};
+            margin-bottom: 0.35rem;
+            font-weight: 700;
+        }}
+
+        .insight-value {{
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: {text};
+            margin-bottom: 0.2rem;
+        }}
+
+        .insight-help {{
+            font-size: 0.88rem;
+            color: {muted};
+            line-height: 1.5;
+        }}
+
+        .badge {{
+            display: inline-block;
+            padding: 0.28rem 0.65rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-right: 0.35rem;
+            border: 1px solid {border};
+        }}
+
+        .badge-pos {{
+            background: rgba(34,197,94,0.15);
+            color: {pos};
+        }}
+
+        .badge-neg {{
+            background: rgba(239,68,68,0.14);
+            color: {neg};
+        }}
+
+        .badge-neutral {{
+            background: rgba(245,158,11,0.13);
+            color: {warn};
+        }}
+
+        .hero-header {{
+            background:
+                radial-gradient(circle at top right, rgba(56,189,248,0.14), transparent 30%),
+                linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            border: 1px solid {border};
+            border-radius: 22px;
+            padding: 1.3rem 1.35rem;
+            margin-bottom: 1rem;
+            box-shadow: {shadow};
+        }}
+
+        .hero-ticker {{
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            color: {text};
+        }}
+
+        .hero-name {{
+            font-size: 0.95rem;
+            color: {muted};
+            margin-top: 0.2rem;
+        }}
+
+        .hero-price {{
+            font-size: 1.9rem;
+            font-weight: 800;
+            margin-top: 0.55rem;
+            color: {text};
+        }}
+
+        .hero-chg-pos {{
+            color: {pos};
+            font-weight: 700;
+        }}
+
+        .hero-chg-neg {{
+            color: {neg};
+            font-weight: 700;
+        }}
+
+        .rail-card {{
+            background: rgba(255,255,255,0.03);
+            border: 1px solid {border};
+            border-radius: 18px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            color: {muted};
+            box-shadow: {shadow};
+        }}
+
+        .rail-title {{
+            font-weight: 700;
+            color: {text};
+            margin-bottom: 0.45rem;
+            font-size: 0.95rem;
+        }}
+
+        .news-item {{
+            padding: 0.8rem 0;
+            border-bottom: 1px solid {border};
+        }}
+
+        .news-item:last-child {{
+            border-bottom: none;
+        }}
+
+        .news-headline {{
+            font-size: 0.92rem;
+            color: {text};
+            font-weight: 600;
+            line-height: 1.5;
+        }}
+
+        .news-meta {{
+            font-size: 0.78rem;
+            color: {muted};
+            margin-top: 0.2rem;
+        }}
+
+        [data-testid="stDataFrame"] {{
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid {border};
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
     )
 
 
-# =========================
-# LANDING PAGE (HOME)
-# =========================
+def render_theme_toggle(st) -> None:
+    init_theme_state(st)
+    st.sidebar.toggle("Light mode", key="ui_theme_is_light")
 
-def render_home_landing(st):
-    st.markdown("""
-    <div class="hero">
-        <h1>📊 Real-Time Financial Intelligence</h1>
-        <p>
-            Analyze markets, sentiment, and trends in one unified system.
-        </p>
 
-        <div class="grid">
-            <div class="card">
-                <div class="card-title">📈 Live Market Data</div>
-                <div class="card-text">Real-time stock prices & fundamentals.</div>
-            </div>
+def render_top_bar(st) -> None:
+    now = datetime.now().strftime("%Y-%m-%d · %H:%M")
+    first, _, rest = APP_BRAND_FULL.partition(" ")
+    brand_html = f'<p class="topbar-brand"><span>{escape(first)}</span> {escape(rest)}</p>'
 
-            <div class="card">
-                <div class="card-title">🧠 Sentiment Engine</div>
-                <div class="card-text">News + social media sentiment scoring.</div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">🔎 Trend Forecasting</div>
-                <div class="card-text">Google Trends + predictive signals.</div>
-            </div>
+    st.markdown(
+        f"""
+        <div class="topbar-wrap">
+          <div class="topbar-inner">
+            {brand_html}
+            <p class="topbar-meta">Live dashboard · {now}</p>
+          </div>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.info("Start by searching a ticker above (e.g., TSLA, AAPL, MSFT)")
-
-
-# =========================
-# SIDEBAR NAV
-# =========================
-
-def _nav_display(internal: str, icon: str, short: str) -> str:
-    return f"{icon}  {short}"
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def render_sidebar_navigation(st) -> str:
-    init_theme_state(st)
+    logo_letter = escape(APP_BRAND_FULL.strip()[0].upper())
+    st.sidebar.markdown(
+        f"""
+        <div class="sidebar-brand">
+          <div class="sb-logo">{logo_letter}</div>
+          <div>
+            <div class="sb-title">{escape(APP_BRAND_FULL)}</div>
+            <div class="sb-sub">{escape(APP_BRAND_TAGLINE)}</div>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    st.sidebar.toggle("Light mode", key="ui_theme_is_light")
+    render_theme_toggle(st)
 
-    st.sidebar.markdown("### Navigate")
-
+    st.sidebar.markdown("##### Navigation")
     options_display = [_nav_display(*row) for row in NAV_DEFINITION]
-    internal_map = {_nav_display(*row): row[0] for row in NAV_DEFINITION}
+    internal_by_display = {_nav_display(*row): row[0] for row in NAV_DEFINITION}
 
     choice = st.sidebar.radio(
-        "",
+        "nav",
         options_display,
+        label_visibility="collapsed",
         key="sidebar_nav_radio",
     )
 
     st.sidebar.markdown("---")
-    st.sidebar.caption("Portfolio · Alerts · Screener (coming soon)")
+    st.sidebar.caption("Smart market workspace")
+    st.sidebar.caption("News · Forecast · Technicals · Fundamentals")
 
-    return internal_map[choice]
+    return internal_by_display[choice]
 
 
-# =========================
-# HERO STOCK HEADER
-# =========================
+def render_dashboard_hero(st):
+    st.markdown(
+        """
+        <div class="hero-card">
+            <div class="hero-kicker">AI Finance Dashboard</div>
+            <div class="hero-title">Track markets, sentiment, and forecast trends in one place.</div>
+            <div class="hero-subtitle">
+                A modern stock intelligence dashboard combining price movement, technical indicators,
+                live news sentiment, and predictive analytics in a clean institutional-style interface.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_section_card_start(st, title: str, subtitle: str = ""):
+    st.markdown(
+        f"""
+        <div class="section-card">
+            <div class="section-title">{escape(title)}</div>
+            <div class="section-subtitle">{escape(subtitle)}</div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_section_card_end(st):
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
+def render_insight_card(st, label: str, value: str, help_text: str):
+    st.markdown(
+        f"""
+        <div class="insight-card">
+            <div class="insight-label">{escape(label)}</div>
+            <div class="insight-value">{escape(value)}</div>
+            <div class="insight-help">{escape(help_text)}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_sentiment_badge(sentiment: str) -> str:
+    s = (sentiment or "").strip().lower()
+    if s == "positive":
+        return '<span class="badge badge-pos">Positive</span>'
+    if s == "negative":
+        return '<span class="badge badge-neg">Negative</span>'
+    return '<span class="badge badge-neutral">Neutral</span>'
+
 
 def render_company_hero(st, ticker: str, info: dict) -> None:
     name = info.get("longName") or info.get("shortName") or ticker
     price = info.get("regularMarketPrice") or info.get("currentPrice")
+    prev = info.get("previousClose")
     cur = info.get("currency") or "USD"
 
-    prev = info.get("previousClose")
-
     chg_pct = None
-    if price and prev:
+    if price is not None and prev not in (None, 0):
         try:
-            chg_pct = (float(price) - float(prev)) / float(prev) * 100
-        except:
-            pass
+            chg_pct = (float(price) - float(prev)) / float(prev) * 100.0
+        except Exception:
+            chg_pct = None
 
-    price_txt = f"{price:,.2f}" if isinstance(price, (int, float)) else "—"
+    chg_cls = "hero-chg-pos" if (chg_pct is not None and chg_pct >= 0) else "hero-chg-neg"
+    chg_txt = ""
+    if chg_pct is not None:
+        sign = "+" if chg_pct >= 0 else ""
+        chg_txt = f'<span class="{chg_cls}">{sign}{chg_pct:.2f}%</span> vs prior close'
 
-    st.markdown(f"""
-    <div class="hero">
-        <h1>{ticker}</h1>
-        <p>{name}</p>
-        <h2 style="margin-top:10px;">{price_txt} {cur}</h2>
-        <p>{'+' if chg_pct and chg_pct >= 0 else ''}{chg_pct:.2f}% vs prev close</p>
-    </div>
-    """, unsafe_allow_html=True)
+    price_txt = f"{price:,.2f}" if isinstance(price, (int, float)) else (str(price) if price else "—")
+
+    st.markdown(
+        f"""
+        <div class="hero-header">
+          <div class="hero-ticker">{escape(str(ticker))}</div>
+          <div class="hero-name">{escape(str(name))}</div>
+          <div class="hero-price">{escape(price_txt)} <span style="font-size:0.95rem;font-weight:500;">{escape(str(cur))}</span></div>
+          <div style="margin-top:0.35rem;font-size:0.92rem;">{chg_txt}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
-# =========================
-# METRICS
-# =========================
-
-def _fmt(v):
-    if v is None:
+def _fmt_metric(v) -> str:
+    if v is None or v == "N/A":
         return "—"
     try:
         if isinstance(v, (int, float)):
-            if abs(v) > 1e9:
-                return f"{v/1e9:.2f}B"
-            if abs(v) > 1e6:
-                return f"{v/1e6:.2f}M"
-            return f"{v:,.2f}"
-    except:
+            if abs(v) >= 1e12:
+                return f"{v / 1e12:.2f}T"
+            if abs(v) >= 1e9:
+                return f"{v / 1e9:.2f}B"
+            if abs(v) >= 1e6:
+                return f"{v / 1e6:.2f}M"
+            if abs(v) >= 1000:
+                return f"{v:,.0f}"
+            return f"{v:,.4g}".rstrip("0").rstrip(".")
+    except Exception:
         pass
     return str(v)
 
 
 def render_metric_strip(st, info: dict) -> None:
+    mcap = info.get("marketCap")
+    pe = info.get("forwardPE") or info.get("trailingPE")
+    divy = info.get("dividendYield")
+    if isinstance(divy, float) and 0 < divy < 1:
+        divy_disp = f"{divy * 100:.2f}%"
+    else:
+        divy_disp = _fmt_metric(divy) if divy not in (None, "N/A") else "—"
+
     c1, c2, c3, c4 = st.columns(4)
-
     with c1:
-        st.metric("Market Cap", _fmt(info.get("marketCap")))
+        st.metric("Market cap", _fmt_metric(mcap))
     with c2:
-        st.metric("P/E", _fmt(info.get("forwardPE")))
+        st.metric("P/E", _fmt_metric(pe))
     with c3:
-        st.metric("52W High", _fmt(info.get("fiftyTwoWeekHigh")))
+        st.metric("Dividend yield", divy_disp)
     with c4:
-        st.metric("52W Low", _fmt(info.get("fiftyTwoWeekLow")))
+        st.metric("Beta", _fmt_metric(info.get("beta")))
 
-
-# =========================
-# RIGHT PANEL
-# =========================
 
 def render_right_rail_placeholder(st) -> None:
-    st.markdown("### Market Pulse")
-    st.markdown("Top movers, sentiment heatmap, and news feed coming soon.")
+    st.markdown('<div class="rail-title">Market pulse</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="rail-card">Add top gainers, watchlist alerts, or sector heatmaps here.</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="rail-card">This side rail works best for summaries, signals, and quick stats.</div>',
+        unsafe_allow_html=True,
+    )
 
-
-# =========================
-# PAGE TITLE
-# =========================
 
 def page_title(st, title: str, subtitle: str | None = None) -> None:
-    st.markdown(f"## {title}")
+    st.markdown(f'<div class="page-card"><h2 style="margin:0;">{escape(title)}</h2>', unsafe_allow_html=True)
     if subtitle:
-        st.caption(subtitle)
+        st.markdown(
+            f'<p style="margin:0.35rem 0 0 0;opacity:0.82;font-size:0.95rem;">{escape(subtitle)}</p>',
+            unsafe_allow_html=True,
+        )
+    st.markdown("</div>", unsafe_allow_html=True)
