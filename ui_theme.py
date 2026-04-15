@@ -435,16 +435,16 @@
 #         )
 #     st.markdown("</div>", unsafe_allow_html=True)
 
-
 """
 Modern Streamlit UI theme for FAST dashboard.
-Dark-first, premium finance dashboard styling.
+Compatible version for Streamlit deployments.
 """
 
 from __future__ import annotations
 
 from datetime import datetime
 from html import escape
+from typing import Optional
 
 APP_BRAND_FULL = "Financial Analysis and Stock Trading Analysis"
 APP_BRAND_TAGLINE = "Real-time market insights"
@@ -459,11 +459,11 @@ NAV_DEFINITION = [
 ]
 
 
-def _nav_display(internal: str, icon: str, short: str) -> str:
+def _nav_display(internal, icon, short):
     return f"{icon}  {short}"
 
 
-def init_theme_state(st) -> None:
+def init_theme_state(st):
     if "ui_theme_is_light" not in st.session_state:
         st.session_state["ui_theme_is_light"] = False
 
@@ -471,13 +471,12 @@ def init_theme_state(st) -> None:
         st.session_state["global_ticker_search"] = "AAPL"
 
 
-def inject_global_css(st) -> None:
+def inject_global_css(st):
     theme = "light" if st.session_state.get("ui_theme_is_light", False) else "dark"
 
     if theme == "light":
         bg = "#F5F7FB"
         panel = "#FFFFFF"
-        panel_2 = "#F8FAFC"
         text = "#101828"
         muted = "#667085"
         border = "rgba(16,24,40,0.08)"
@@ -487,7 +486,6 @@ def inject_global_css(st) -> None:
     else:
         bg = "#07111F"
         panel = "#0F172A"
-        panel_2 = "#111C30"
         text = "#E5EEF9"
         muted = "#94A3B8"
         border = "rgba(148,163,184,0.14)"
@@ -906,41 +904,47 @@ def inject_global_css(st) -> None:
     )
 
 
-def render_theme_toggle(st) -> None:
+def render_theme_toggle(st):
     init_theme_state(st)
     st.sidebar.toggle("Light mode", key="ui_theme_is_light")
 
 
-def render_top_bar(st) -> None:
+def render_top_bar(st):
     now = datetime.now().strftime("%Y-%m-%d · %H:%M")
     first, _, rest = APP_BRAND_FULL.partition(" ")
-    brand_html = f'<p class="topbar-brand"><span>{escape(first)}</span> {escape(rest)}</p>'
+    brand_html = '<p class="topbar-brand"><span>{}</span> {}</p>'.format(
+        escape(first), escape(rest)
+    )
 
     st.markdown(
-        f"""
+        """
         <div class="topbar-wrap">
           <div class="topbar-inner">
-            {brand_html}
+            {brand}
             <p class="topbar-meta">Live dashboard · {now}</p>
           </div>
         </div>
-        """,
+        """.format(brand=brand_html, now=now),
         unsafe_allow_html=True,
     )
 
 
-def render_sidebar_navigation(st) -> str:
+def render_sidebar_navigation(st):
     logo_letter = escape(APP_BRAND_FULL.strip()[0].upper())
     st.sidebar.markdown(
-        f"""
+        """
         <div class="sidebar-brand">
-          <div class="sb-logo">{logo_letter}</div>
+          <div class="sb-logo">{logo}</div>
           <div>
-            <div class="sb-title">{escape(APP_BRAND_FULL)}</div>
-            <div class="sb-sub">{escape(APP_BRAND_TAGLINE)}</div>
+            <div class="sb-title">{title}</div>
+            <div class="sb-sub">{subtitle}</div>
           </div>
         </div>
-        """,
+        """.format(
+            logo=logo_letter,
+            title=escape(APP_BRAND_FULL),
+            subtitle=escape(APP_BRAND_TAGLINE),
+        ),
         unsafe_allow_html=True,
     )
 
@@ -980,13 +984,16 @@ def render_dashboard_hero(st):
     )
 
 
-def render_section_card_start(st, title: str, subtitle: str = ""):
+def render_section_card_start(st, title, subtitle=""):
     st.markdown(
-        f"""
+        """
         <div class="section-card">
-            <div class="section-title">{escape(title)}</div>
-            <div class="section-subtitle">{escape(subtitle)}</div>
-        """,
+            <div class="section-title">{title}</div>
+            <div class="section-subtitle">{subtitle}</div>
+        """.format(
+            title=escape(str(title)),
+            subtitle=escape(str(subtitle)),
+        ),
         unsafe_allow_html=True,
     )
 
@@ -995,21 +1002,25 @@ def render_section_card_end(st):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-def render_insight_card(st, label: str, value: str, help_text: str):
+def render_insight_card(st, label, value, help_text):
     st.markdown(
-        f"""
+        """
         <div class="insight-card">
-            <div class="insight-label">{escape(label)}</div>
-            <div class="insight-value">{escape(value)}</div>
-            <div class="insight-help">{escape(help_text)}</div>
+            <div class="insight-label">{label}</div>
+            <div class="insight-value">{value}</div>
+            <div class="insight-help">{help_text}</div>
         </div>
-        """,
+        """.format(
+            label=escape(str(label)),
+            value=escape(str(value)),
+            help_text=escape(str(help_text)),
+        ),
         unsafe_allow_html=True,
     )
 
 
-def render_sentiment_badge(sentiment: str) -> str:
-    s = (sentiment or "").strip().lower()
+def render_sentiment_badge(sentiment):
+    s = str(sentiment or "").strip().lower()
     if s == "positive":
         return '<span class="badge badge-pos">Positive</span>'
     if s == "negative":
@@ -1017,7 +1028,7 @@ def render_sentiment_badge(sentiment: str) -> str:
     return '<span class="badge badge-neutral">Neutral</span>'
 
 
-def render_company_hero(st, ticker: str, info: dict) -> None:
+def render_company_hero(st, ticker, info):
     name = info.get("longName") or info.get("shortName") or ticker
     price = info.get("regularMarketPrice") or info.get("currentPrice")
     prev = info.get("previousClose")
@@ -1034,48 +1045,60 @@ def render_company_hero(st, ticker: str, info: dict) -> None:
     chg_txt = ""
     if chg_pct is not None:
         sign = "+" if chg_pct >= 0 else ""
-        chg_txt = f'<span class="{chg_cls}">{sign}{chg_pct:.2f}%</span> vs prior close'
+        chg_txt = '<span class="{cls}">{sign}{pct:.2f}%</span> vs prior close'.format(
+            cls=chg_cls, sign=sign, pct=chg_pct
+        )
 
-    price_txt = f"{price:,.2f}" if isinstance(price, (int, float)) else (str(price) if price else "—")
+    if isinstance(price, (int, float)):
+        price_txt = "{:,.2f}".format(price)
+    else:
+        price_txt = str(price) if price else "—"
 
     st.markdown(
-        f"""
+        """
         <div class="hero-header">
-          <div class="hero-ticker">{escape(str(ticker))}</div>
-          <div class="hero-name">{escape(str(name))}</div>
-          <div class="hero-price">{escape(price_txt)} <span style="font-size:0.95rem;font-weight:500;">{escape(str(cur))}</span></div>
-          <div style="margin-top:0.35rem;font-size:0.92rem;">{chg_txt}</div>
+          <div class="hero-ticker">{ticker}</div>
+          <div class="hero-name">{name}</div>
+          <div class="hero-price">{price} <span style="font-size:0.95rem;font-weight:500;">{currency}</span></div>
+          <div style="margin-top:0.35rem;font-size:0.92rem;">{chg}</div>
         </div>
-        """,
+        """.format(
+            ticker=escape(str(ticker)),
+            name=escape(str(name)),
+            price=escape(str(price_txt)),
+            currency=escape(str(cur)),
+            chg=chg_txt,
+        ),
         unsafe_allow_html=True,
     )
 
 
-def _fmt_metric(v) -> str:
+def _fmt_metric(v):
     if v is None or v == "N/A":
         return "—"
     try:
         if isinstance(v, (int, float)):
             if abs(v) >= 1e12:
-                return f"{v / 1e12:.2f}T"
+                return "{:.2f}T".format(v / 1e12)
             if abs(v) >= 1e9:
-                return f"{v / 1e9:.2f}B"
+                return "{:.2f}B".format(v / 1e9)
             if abs(v) >= 1e6:
-                return f"{v / 1e6:.2f}M"
+                return "{:.2f}M".format(v / 1e6)
             if abs(v) >= 1000:
-                return f"{v:,.0f}"
-            return f"{v:,.4g}".rstrip("0").rstrip(".")
+                return "{:,.0f}".format(v)
+            return "{:,.4g}".format(v).rstrip("0").rstrip(".")
     except Exception:
         pass
     return str(v)
 
 
-def render_metric_strip(st, info: dict) -> None:
+def render_metric_strip(st, info):
     mcap = info.get("marketCap")
     pe = info.get("forwardPE") or info.get("trailingPE")
     divy = info.get("dividendYield")
+
     if isinstance(divy, float) and 0 < divy < 1:
-        divy_disp = f"{divy * 100:.2f}%"
+        divy_disp = "{:.2f}%".format(divy * 100)
     else:
         divy_disp = _fmt_metric(divy) if divy not in (None, "N/A") else "—"
 
@@ -1090,7 +1113,7 @@ def render_metric_strip(st, info: dict) -> None:
         st.metric("Beta", _fmt_metric(info.get("beta")))
 
 
-def render_right_rail_placeholder(st) -> None:
+def render_right_rail_placeholder(st):
     st.markdown('<div class="rail-title">Market pulse</div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="rail-card">Add top gainers, watchlist alerts, or sector heatmaps here.</div>',
@@ -1102,11 +1125,16 @@ def render_right_rail_placeholder(st) -> None:
     )
 
 
-def page_title(st, title: str, subtitle: str | None = None) -> None:
-    st.markdown(f'<div class="page-card"><h2 style="margin:0;">{escape(title)}</h2>', unsafe_allow_html=True)
+def page_title(st, title, subtitle=None):
+    st.markdown(
+        '<div class="page-card"><h2 style="margin:0;">{}</h2>'.format(escape(str(title))),
+        unsafe_allow_html=True,
+    )
     if subtitle:
         st.markdown(
-            f'<p style="margin:0.35rem 0 0 0;opacity:0.82;font-size:0.95rem;">{escape(subtitle)}</p>',
+            '<p style="margin:0.35rem 0 0 0;opacity:0.82;font-size:0.95rem;">{}</p>'.format(
+                escape(str(subtitle))
+            ),
             unsafe_allow_html=True,
         )
     st.markdown("</div>", unsafe_allow_html=True)
